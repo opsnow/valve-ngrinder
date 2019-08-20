@@ -40,21 +40,27 @@ variable "my_ip_address" {
 #  default     = ["*"]
 }
 
-locals {
-  kname = var.key_name
-  kpath = var.key_path
-  ipaddr = var.my_ip_address
+variable "agent_count" {
+  description = "how many"
+  default     = 1
 }
+
+
+# locals {
+#   kname = var.key_name
+#   kpath = var.key_path
+#   ipaddr = var.my_ip_address
+# }
 
 
 module "ngrinder_ctrl" {
   source = "./module/ctrl"
 
   # Must have pem file in {key_path}/{key_name}.pem
-  key_name = local.kname
-  key_path = local.kpath
+  key_name = var.key_name
+  key_path = var.key_path
 
-  my_ip_address = local.ipaddr
+  my_ip_address = var.my_ip_address
 }
 
 # delivery common security group id to agents
@@ -67,11 +73,11 @@ module "ngrinder_agent" {
   source = "./module/agent"
 
   # how many agents to run
-  agent_count = 2
+  agent_count = var.agent_count
 
   # Must have pem file in {key_path}/{key_name}.pem
-  key_name = local.kname
-  key_path = local.kpath
+  key_name = var.key_name
+  key_path = var.key_path
 
   # from controller module
   controller_ip = local.controller_private_ip
